@@ -1,0 +1,219 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7197,        209]
+NotebookOptionsPosition[      6311,        172]
+NotebookOutlinePosition[      6667,        188]
+CellTagsIndexPosition[      6624,        185]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Felipe methods text", "Title",
+ CellChangeTimes->{{3.6230867811162663`*^9, 3.6230867855145893`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Epoch selection", "Subsection",
+ CellChangeTimes->{{3.623087608421772*^9, 3.623087614035501*^9}}],
+
+Cell["\<\
+Starting with the entire recording of the paired EKG and EEG signals, we \
+locate start and end times for artifact-free regions. We discard the \
+artifactual regions, and treat the remaining disjoint regions in the \
+following way:\
+\>", "Text",
+ CellChangeTimes->{{3.6230876291218452`*^9, 3.623087793912472*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Length of Time Window", "Subsubsection",
+ CellChangeTimes->{{3.623088202897773*^9, 3.623088209275391*^9}}],
+
+Cell["\<\
+In order to look for relationships in the time-series, we select as many \
+non-overlapping windows of a fixed length as possible. Choosing longer \
+windows is necessary to examine low-frequency detail, but longer windows \
+result in fewer total windows. Because of this trade-off, we perform analysis \
+using two fixed-window sizes: 15s and 75s. When analyzing 15s windows, only \
+the HF band of the RR PSD is computed, since the length is insufficient to \
+properly estimate lower frequency power.\
+\>", "Text",
+ CellChangeTimes->{{3.6230882118517427`*^9, 3.623088631051222*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["RR Interval methods", "Subsection",
+ CellChangeTimes->{{3.6230869353202963`*^9, 3.623086940765119*^9}}],
+
+Cell[TextData[{
+ "First, we compute RR intervals from the raw data, and convert the intervals \
+into a time-series ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"y", "(", "t", ")"}], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ". Specifically, the points are ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      SubscriptBox["t", "j"], ",", 
+      SubscriptBox["y", "j"]}], "}"}], "=", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{
+       UnderoverscriptBox["\[Sum]", 
+        RowBox[{"i", "=", "1"}], "j"], 
+       SubscriptBox["RR", "i"]}], ",", 
+      SubscriptBox["RR", "j"]}], "}"}]}], TraditionalForm]]],
+ ". In order to conduct a power spectral density analysis, we need to sample \
+equally spaced points from a time-series. In order to achieve this, we \
+interpolate the time-series using cubic splines, then resample at a specified \
+resampling rate. In this study, we set this to 4 Hz, which should capture the \
+proper level of spectral detail (see \
+http://informahealthcare.com/doi/pdf/10.1080/03091900410001662350). We scale \
+the data by looking at the relative deviation from the mean, ",
+ Cell[BoxData[
+  FormBox[
+   FractionBox[
+    RowBox[{
+     RowBox[{"y", 
+      RowBox[{"(", "t", ")"}]}], " ", "-", " ", "\[Mu]", " "}], "\[Mu]"], 
+   TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ". We then remove the DC bias and detrend the samples by finding the \
+best-fit line using linear regression, and subtracting it from the data. \
+Finally, the power spectral density is computed for a given segment, and \
+given as an expansion up to order ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["\[Omega]", 
+    RowBox[{"n", "-", "1"}]], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ", where ",
+ Cell[BoxData[
+  FormBox["n", TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " is the number of sample points. In order to compute the power in each band \
+(VLF, LF, HF), we numerically integrate the resulting PSD function using the \
+trapezoidal rule."
+}], "Text",
+ CellChangeTimes->{{3.6230858817886047`*^9, 3.6230859841289253`*^9}, {
+  3.623086052180602*^9, 3.623086208781378*^9}, {3.623086242475402*^9, 
+  3.623086379568441*^9}, {3.623086412744637*^9, 3.6230864882551317`*^9}, {
+  3.623086526831646*^9, 3.623086527135454*^9}, {3.623086586007072*^9, 
+  3.6230866646443663`*^9}, {3.6230867027374907`*^9, 3.623086714392644*^9}, {
+  3.623086761192834*^9, 3.6230867760427513`*^9}, {3.623086974133184*^9, 
+  3.623087064652032*^9}, {3.623087467560964*^9, 3.6230874687986383`*^9}, {
+  3.623087500694015*^9, 3.6230875041341867`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["EEG methods", "Subsection",
+ CellChangeTimes->{{3.623086966977912*^9, 3.6230869683615427`*^9}}],
+
+Cell[TextData[{
+ "First we remove DC bias and detrend the EEG time-series using linear \
+regression, subtracting the prediction from the data. We then compute the \
+power spectral density function up to an arbitrary cutoff ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["\[Omega]", "n"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ", where we specify ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"n", "=", "3100"}], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ ". To compute the power in each EEG band, we numerically integrate the PSD \
+function using the trapezoidal rule. This procedure is performed for each \
+electrode separately."
+}], "Text",
+ CellChangeTimes->{{3.6230868882723513`*^9, 3.6230869265339203`*^9}, 
+   3.623087111822308*^9, {3.623087147777203*^9, 3.623087190504977*^9}, {
+   3.623087308901661*^9, 3.623087451652671*^9}, {3.623087515102871*^9, 
+   3.623087518803894*^9}, {3.623087578152779*^9, 3.623087583424365*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Correlation Analysis", "Subsection",
+ CellChangeTimes->{{3.623087929285369*^9, 3.623087933266938*^9}}],
+
+Cell["\<\
+We compute the cross correlation matrix between the PSD functions of each \
+pair of EEG electrodes. \
+\>", "Text",
+ CellChangeTimes->{{3.62308793883531*^9, 3.623087995475967*^9}}],
+
+Cell["\<\
+We compute the correlation (Pearson and Spearman) between each RR power band, \
+and each EEG power band. This is done for each EEG electrode.\
+\>", "Text",
+ CellChangeTimes->{{3.623088004850792*^9, 3.623088052438476*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 911},
+WindowMargins->{{457, Automatic}, {185, Automatic}},
+FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (June 27, \
+2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 106, 1, 92, "Title"],
+Cell[CellGroupData[{
+Cell[711, 27, 103, 1, 44, "Subsection"],
+Cell[817, 30, 323, 6, 49, "Text"],
+Cell[CellGroupData[{
+Cell[1165, 40, 112, 1, 35, "Subsubsection"],
+Cell[1280, 43, 590, 9, 106, "Text"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1919, 58, 109, 1, 44, "Subsection"],
+Cell[2031, 61, 2589, 61, 242, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4657, 127, 101, 1, 44, "Subsection"],
+Cell[4761, 130, 951, 20, 89, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5749, 155, 108, 1, 44, "Subsection"],
+Cell[5860, 158, 189, 4, 30, "Text"],
+Cell[6052, 164, 231, 4, 49, "Text"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
